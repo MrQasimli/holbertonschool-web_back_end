@@ -1,0 +1,1 @@
+This part is about add several languages to site, i18n
