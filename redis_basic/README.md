@@ -1,0 +1,1 @@
+This part of project is about the redis, how to work with that stuff and etc.

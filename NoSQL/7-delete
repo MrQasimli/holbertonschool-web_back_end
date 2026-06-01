@@ -1,0 +1,3 @@
+// this file is for deleting the values where they ar ethe matched
+db.school.deleteMany({name:"Holberton school"})
+

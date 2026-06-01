@@ -1,0 +1,3 @@
+// this file we use for creating a script to list all data whiuch we had in our db
+db.school.find()
+
