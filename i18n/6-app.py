@@ -79,7 +79,18 @@ def get_locale() -> str:
     return app.config.get('BABEL_DEFAULT_LOCALE')
 
 
-babel.init_app(app, locale_selector=get_locale)
+# Initialize Babel with compatibility for different Flask-Babel versions.
+try:
+    # Newer Flask-Babel: pass selector functions directly
+    babel.init_app(app, locale_selector=get_locale)
+except TypeError:
+    # Older Flask-Babel: use decorator registration
+    babel.init_app(app)
+    try:
+        babel.localeselector(get_locale)
+    except Exception:
+        # If even that fails, ignore and rely on defaults
+        pass
 
 
 @app.route('/')
