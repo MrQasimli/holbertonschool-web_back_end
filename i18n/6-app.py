@@ -4,6 +4,7 @@ THis file we use for create a simple Flask App
 """
 import flask
 from flask import Flask, render_template, request
+from typing import Optional, Dict
 from flask_babel import Babel
 
 
@@ -41,23 +42,40 @@ babel = Babel()
 
 
 @app.before_request
-def before_request():
-    """We use that for add the func before request"""
+def before_request() -> None:
+    """Executed before each request; attach user to the request context."""
     flask.g.user = get_user()
 
 
-def get_locale():
+def get_locale() -> str:
     """
     We use this function for getting the lang from browser
     """
-    locale = request.args.get('locale')
-    if locale in app.config['LANGUAGES']:
-        return locale
+    """Return the best locale following this priority:
+    1. Locale from URL parameters
+    2. Locale from user settings
+    3. Locale from request header
+    4. Default locale
+    """
+    # 1. Locale from URL parameters
+    url_locale = request.args.get('locale')
+    if url_locale and url_locale in app.config['LANGUAGES']:
+        return url_locale
 
-    if flask.g.user and flask.g.get('locale') in app.config['LANGUAGES']:
-        return flask.g.user.get('locale')
+    # 2. Locale from user settings
+    user = getattr(flask.g, 'user', None)
+    if user:
+        user_locale = user.get('locale')
+        if user_locale and user_locale in app.config['LANGUAGES']:
+            return user_locale
 
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+    # 3. Locale from request header
+    header_locale = request.accept_languages.best_match(app.config['LANGUAGES'])
+    if header_locale:
+        return header_locale
+
+    # 4. Fallback to default locale
+    return app.config.get('BABEL_DEFAULT_LOCALE')
 
 
 babel.init_app(app, locale_selector=get_locale)
