@@ -4,7 +4,6 @@ THis file we use for create a simple Flask App
 """
 import flask
 from flask import Flask, render_template, request
-from typing import Optional, Dict
 from flask_babel import Babel
 
 
@@ -25,10 +24,9 @@ users = {
 }
 
 
-def get_user() -> Optional[Dict]:
-    """Return a user dictionary from the 'users' mapping using the
-    'login_as' request argument; return None if the argument is missing
-    or invalid.
+def get_user():
+    """
+    We use this documentation for getting user from the our DB
     """
     try:
         user_id = request.args.get("login_as")
@@ -39,62 +37,34 @@ def get_user() -> Optional[Dict]:
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
-
 babel = Babel()
 
 
 @app.before_request
-def before_request() -> None:
-    """Executed before each request; attach user to the request context."""
+def before_request():
+    """We use that for add the func before request"""
     flask.g.user = get_user()
 
 
-def get_locale() -> str:
-    """Return the best locale following this priority:
-
-    1. Locale from URL parameters
-    2. Locale from user settings
-    3. Locale from request header
-    4. Default locale
+def get_locale():
     """
-    # 1. Locale from URL parameters
-    url_locale = request.args.get('locale')
-    if url_locale and url_locale in app.config['LANGUAGES']:
-        return url_locale
+    We use this function for getting the lang from browser
+    """
+    locale = request.args.get('locale')
+    if locale in app.config['LANGUAGES']:
+        return locale
 
-    # 2. Locale from user settings
-    user = getattr(flask.g, 'user', None)
-    if user:
-        user_locale = user.get('locale')
-        if user_locale and user_locale in app.config['LANGUAGES']:
-            return user_locale
+    if flask.g.user and flask.g.get('locale') in app.config['LANGUAGES']:
+        return flask.g.user.get('locale')
 
-    # 3. Locale from request header
-    header_locale = request.accept_languages.best_match(app.config['LANGUAGES'])
-    if header_locale:
-        return header_locale
-
-    # 4. Fallback to default locale
-    return app.config.get('BABEL_DEFAULT_LOCALE')
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-# Initialize Babel with compatibility for different Flask-Babel versions.
-try:
-    # Newer Flask-Babel: pass selector functions directly
-    babel.init_app(app, locale_selector=get_locale)
-except TypeError:
-    # Older Flask-Babel: use decorator registration
-    babel.init_app(app)
-    try:
-        babel.localeselector(get_locale)
-    except Exception:
-        # If even that fails, ignore and rely on defaults
-        pass
+babel.init_app(app, locale_selector=get_locale)
 
 
 @app.route('/')
-def main_page() -> str:
+def main_page():
     """
     This route is main route, which show us the main page
     """
