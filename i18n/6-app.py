@@ -25,9 +25,10 @@ users = {
 }
 
 
-def get_user():
-    """
-    We use this documentation for getting user from the our DB
+def get_user() -> Optional[Dict]:
+    """Return a user dictionary from the 'users' mapping using the
+    'login_as' request argument; return None if the argument is missing
+    or invalid.
     """
     try:
         user_id = request.args.get("login_as")
@@ -38,6 +39,8 @@ def get_user():
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+
 babel = Babel()
 
 
@@ -48,10 +51,8 @@ def before_request() -> None:
 
 
 def get_locale() -> str:
-    """
-    We use this function for getting the lang from browser
-    """
     """Return the best locale following this priority:
+
     1. Locale from URL parameters
     2. Locale from user settings
     3. Locale from request header
@@ -82,7 +83,7 @@ babel.init_app(app, locale_selector=get_locale)
 
 
 @app.route('/')
-def main_page():
+def main_page() -> str:
     """
     This route is main route, which show us the main page
     """
