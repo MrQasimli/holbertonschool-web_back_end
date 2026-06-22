@@ -19,7 +19,6 @@ function publishMessage(message, time) {
   }, time);
 }
 
-// Appels demandés par l'exercice
 publishMessage('Holberton Student #1 starts course', 100);
 publishMessage('Holberton Student #2 starts course', 200);
 publishMessage('KILL_SERVER', 300);
